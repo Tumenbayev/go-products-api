@@ -72,7 +72,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "currency": {
-                    "description": "@Description Currency code (e.g., USD, EUR)",
+                    "description": "@Description Currency code (e.g., EUR)",
                     "type": "string"
                 },
                 "discount_percentage": {
@@ -141,7 +141,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
-	BasePath:         "/v1",
+	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Products API",
 	Description:      "A Products API service",

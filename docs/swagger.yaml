@@ -1,10 +1,10 @@
-basePath: /v1
+basePath: /
 definitions:
   github_com_tumenbayev_go-products-api_internal_entity.Price:
     description: Price contains pricing information for a product
     properties:
       currency:
-        description: '@Description Currency code (e.g., USD, EUR)'
+        description: '@Description Currency code (e.g., EUR)'
         type: string
       discount_percentage:
         description: '@Description Discount percentage if applicable'

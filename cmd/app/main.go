@@ -12,7 +12,7 @@ import (
 // @version         1.0
 // @description     A Products API service
 // @host           localhost:8080
-// @BasePath       /v1
+// @BasePath       /
 func main() {
 	cfg, err := config.NewConfig()
 	if err != nil {

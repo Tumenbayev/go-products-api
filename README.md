@@ -15,7 +15,7 @@ This project is a REST API that applies discounts to products and supports filte
   - Filter by price less than a specified amount (optional).
 - **API Endpoints**:
   - `GET /products`: Returns a list of products with discounts applied, filtered by category and/or price.
-
+  - `GET /swagger/index.html`: Swagger UI for API documentation.
 ## Build and Run
 
 ### Prerequisites

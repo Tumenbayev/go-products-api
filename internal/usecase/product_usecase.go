@@ -2,9 +2,11 @@ package usecase
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/tumenbayev/go-products-api/internal/entity"
 	"github.com/tumenbayev/go-products-api/internal/usecase/repository"
+	"github.com/tumenbayev/go-products-api/internal/filters"
 )
 
 type ProductUseCase interface {
@@ -29,36 +31,41 @@ func NewProductUseCase(repo repository.ProductRepository) ProductUseCase {
 func (uc *productUseCase) GetProducts(filter ProductFilter) ([]entity.Product, error) {
 	products, err := uc.repo.GetAll()
 	if err != nil {
-		return []entity.Product{}, fmt.Errorf("product usecase - get all: %w", err)
+		return nil, fmt.Errorf("product usecase - get all: %w", err)
 	}
 
-	var filtered []entity.Product
-	for _, p := range products {
-		if filter.Category != "" && p.Category != filter.Category {
-			continue
-		}
-		if filter.PriceLessThan > 0 && p.Price.Original > filter.PriceLessThan {
-			continue
-		}
-		filtered = append(filtered, p)
+	var activeFilters []filters.Filter
+	if filter.Category != "" {
+		activeFilters = append(activeFilters, &filters.CategoryFilter{Category: filter.Category})
+	}
+	if filter.PriceLessThan > 0 {
+		activeFilters = append(activeFilters, &filters.PriceFilter{PriceLessThan: filter.PriceLessThan})
 	}
 
-	for i, p := range filtered {
-		discount := calculateDiscount(p)
+	sort.Slice(activeFilters, func(i, j int) bool {
+		return activeFilters[i].Priority() < activeFilters[j].Priority()
+	})
+
+	for _, f := range activeFilters {
+		products = f.Apply(products)
+	}
+
+	for i := range products {
+		discount := calculateDiscount(products[i])
 		if discount > 0 {
 			discountPercentage := fmt.Sprintf("%d%%", discount)
-			filtered[i].Price.DiscountPercentage = &discountPercentage
-			filtered[i].Price.Final = p.Price.Original - (p.Price.Original * discount / 100)
+			products[i].Price.DiscountPercentage = &discountPercentage
+			products[i].Price.Final = products[i].Price.Original - (products[i].Price.Original * discount / 100)
 		} else {
-			filtered[i].Price.Final = p.Price.Original
+			products[i].Price.Final = products[i].Price.Original
 		}
 	}
 
-	if len(filtered) > 5 {
-		filtered = filtered[:5]
+	if len(products) > 5 {
+		products = products[:5]
 	}
 
-	return filtered, nil
+	return products, nil
 }
 
 func calculateDiscount(p entity.Product) int {

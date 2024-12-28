@@ -1,0 +1,88 @@
+basePath: /v1
+definitions:
+  github_com_tumenbayev_go-products-api_internal_entity.Price:
+    description: Price contains pricing information for a product
+    properties:
+      currency:
+        description: '@Description Currency code (e.g., USD, EUR)'
+        type: string
+      discount_percentage:
+        description: '@Description Discount percentage if applicable'
+        type: string
+      final:
+        description: '@Description Final price after applying discounts in cents/pennies'
+        type: integer
+      original:
+        description: '@Description Original price in cents/pennies'
+        type: integer
+    type: object
+  github_com_tumenbayev_go-products-api_internal_entity.Product:
+    description: Product represents a product in the system
+    properties:
+      category:
+        description: '@Description Category of the product'
+        type: string
+      name:
+        description: '@Description Name of the product'
+        type: string
+      price:
+        allOf:
+        - $ref: '#/definitions/github_com_tumenbayev_go-products-api_internal_entity.Price'
+        description: '@Description Price information of the product'
+      sku:
+        description: '@Description Unique identifier for the product'
+        type: string
+    type: object
+  internal_controller_http_v1.getProductsResponse:
+    properties:
+      products:
+        items:
+          $ref: '#/definitions/github_com_tumenbayev_go-products-api_internal_entity.Product'
+        type: array
+    type: object
+  internal_controller_http_v1.response:
+    properties:
+      error:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: A Products API service
+  title: Products API
+  version: "1.0"
+paths:
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of products with optional filters and applied discounts
+      operationId: get-products
+      parameters:
+      - description: Category to filter by (e.g., boots, sandals, sneakers)
+        in: query
+        name: category
+        type: string
+      - description: Maximum price in cents/pennies (e.g., 89000 for 890.00€)
+        in: query
+        name: priceLessThan
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved products
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.getProductsResponse'
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.response'
+      summary: Get Products
+      tags:
+      - products
+swagger: "2.0"
